@@ -4,6 +4,7 @@ from typing import Iterable
 import requests
 from bs4 import BeautifulSoup
 
+from data_objects.Card import Card
 from scrapers.BaseScraper import BaseScraper
 
 
@@ -36,6 +37,9 @@ class Gatherer(BaseScraper):
             set_page_parser.select("div#ctl00_ctl00_ctl00_MainContent_SubContent_topPagingControlsContainer > a")) - 1
         card_list = [re.sub(r".*\((.*)\)", r"\1", r.text) for r in
                      set_page_parser.select("table.cardItemTable div.cardInfo > span.cardTitle a")]
+        for c in set_page_parser.select("tr.cardItem"):
+            card = Card(c, set_name)
+            card.to_json()
         for i in range(1, number_of_pages):
             set_url = self.__search_url.format(page_num=i) + "set=[\"{0}\"]".format(set_name.replace(" ", "+"))
             set_page = requests.get(set_url).content
